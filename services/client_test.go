@@ -12,67 +12,133 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestCreateContact(t *testing.T) {
+func TestCreateClient(t *testing.T) {
 	ctx := context.Background()
 
-	t.Run("should create contact successfully", func(t *testing.T) {
+	t.Run("should create client with contacts successfully", func(t *testing.T) {
 		clientRepo := new(mocks.ClientRepositoryMock)
 		contactRepo := new(mocks.ContactRepositoryMock)
 
-		svc := &contactService{
+		svc := &clientService{
 			clr: clientRepo,
 			ctr: contactRepo,
 		}
 
-		client := &models.Client{ID: "client-123", Name: "Gabriel"}
-		clientRepo.On("GetClientByID", ctx, "client-123").Return(client, nil)
+		contacts := []*models.Contact{
+			{
+				ID:    "contact-1",
+				Phone: "+5521999999999",
+				Email: "gabriel@gmail.com",
+			},
+		}
 
-		contactRepo.On("CreateContact", ctx, mock.MatchedBy(func(c *models.Contact) bool {
-			return c.Phone == "123456789" && c.Email == "test@example.com" && c.ClientID == "client-123"
-		})).Return(nil)
+		clientRepo.
+			On("CreateClient", ctx, mock.MatchedBy(func(c *models.Client) bool {
+				c.ID = "client-123"
+				c.CreatedAt = time.Now()
+				return c.Name == "Gabriel"
+			})).
+			Run(func(args mock.Arguments) {
+				arg := args.Get(1).(*models.Client)
+				arg.ID = "client-123"
+				arg.CreatedAt = time.Now()
+			}).
+			Return(nil)
 
-		resp, err := svc.CreateContact(ctx, "123456789", "test@example.com", "client-123")
+		contactRepo.
+			On("CreateContacts", ctx, mock.Anything).
+			Return(nil)
+
+		resp, err := svc.CreateClient(ctx, "Gabriel", contacts)
 
 		assert.NoError(t, err)
-		assert.Equal(t, "123456789", resp.Phone)
-		assert.Equal(t, "test@example.com", resp.Email)
+		assert.Equal(t, "Gabriel", resp.Name)
+		assert.Len(t, resp.Contacts, 1)
+		assert.Equal(t, "+5521999999999", resp.Contacts[0].Phone)
 	})
 
-	t.Run("should return error if client not found", func(t *testing.T) {
+	t.Run("should create client without contacts", func(t *testing.T) {
 		clientRepo := new(mocks.ClientRepositoryMock)
 		contactRepo := new(mocks.ContactRepositoryMock)
 
-		svc := &contactService{
+		svc := &clientService{
 			clr: clientRepo,
 			ctr: contactRepo,
 		}
 
-		clientRepo.On("GetClientByID", ctx, "missing-client").Return(nil, nil)
+		clientRepo.
+			On("CreateClient", ctx, mock.Anything).
+			Run(func(args mock.Arguments) {
+				arg := args.Get(1).(*models.Client)
+				arg.ID = "client-123"
+				arg.CreatedAt = time.Now()
+			}).
+			Return(nil)
 
-		resp, err := svc.CreateContact(ctx, "123456789", "test@example.com", "missing-client")
+		resp, err := svc.CreateClient(ctx, "Sem Contato", nil)
 
-		assert.Nil(t, resp)
-		assert.ErrorIs(t, err, models.ErrClientNotFound)
+		assert.NoError(t, err)
+		assert.Equal(t, "Sem Contato", resp.Name)
+		assert.Empty(t, resp.Contacts)
 	})
 
-	t.Run("should return error if client repo fails", func(t *testing.T) {
+	t.Run("should return error if client creation fails", func(t *testing.T) {
 		clientRepo := new(mocks.ClientRepositoryMock)
 		contactRepo := new(mocks.ContactRepositoryMock)
 
-		svc := &contactService{
+		svc := &clientService{
 			clr: clientRepo,
 			ctr: contactRepo,
 		}
 
-		clientRepo.On("GetClientByID", ctx, "fail-client").Return(nil, errors.New("db error"))
+		clientRepo.
+			On("CreateClient", ctx, mock.Anything).
+			Return(errors.New("erro no banco"))
 
-		resp, err := svc.CreateContact(ctx, "123456789", "test@example.com", "fail-client")
+		resp, err := svc.CreateClient(ctx, "Gabriel", nil)
 
+		assert.Error(t, err)
 		assert.Nil(t, resp)
-		assert.Contains(t, err.Error(), "get client by id")
+		assert.Contains(t, err.Error(), "create client")
+	})
+
+	t.Run("should return error if creating contacts fails", func(t *testing.T) {
+		clientRepo := new(mocks.ClientRepositoryMock)
+		contactRepo := new(mocks.ContactRepositoryMock)
+
+		svc := &clientService{
+			clr: clientRepo,
+			ctr: contactRepo,
+		}
+
+		contacts := []*models.Contact{
+			{
+				ID:    "c1",
+				Phone: "+5521999999999",
+				Email: "g@a.com",
+			},
+		}
+
+		clientRepo.
+			On("CreateClient", ctx, mock.Anything).
+			Run(func(args mock.Arguments) {
+				arg := args.Get(1).(*models.Client)
+				arg.ID = "client-123"
+				arg.CreatedAt = time.Now()
+			}).
+			Return(nil)
+
+		contactRepo.
+			On("CreateContacts", ctx, mock.Anything).
+			Return(errors.New("erro contatos"))
+
+		resp, err := svc.CreateClient(ctx, "Gabriel", contacts)
+
+		assert.Error(t, err)
+		assert.Nil(t, resp)
+		assert.Contains(t, err.Error(), "create contacts")
 	})
 }
-
 func TestGetClientsWithContact(t *testing.T) {
 	ctx := context.Background()
 

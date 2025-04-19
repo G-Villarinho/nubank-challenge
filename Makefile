@@ -37,3 +37,11 @@ swag:
 mock: 
 	@echo "🔄 Gen mock..."
 	@mockery
+
+.PHONY: test
+test:
+	@echo "Running tests... \n"
+	@go test -v ./... -coverprofile=coverage.out
+	@echo "\n Tests completed successfully! \n"
+	@go tool cover -html=coverage.out -o coverage.html
+	@echo "\n Coverage report generated successfully! \n"
