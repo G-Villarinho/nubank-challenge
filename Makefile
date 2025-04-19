@@ -33,6 +33,13 @@ swag:
 	@swag init --output ./docs
 	@echo "\n Swagger documentation generated successfully! \n"
 
+.PHONY: setup
+setup:
+	@echo "Instalando ferramentas de desenvolvimento..."
+	@go install github.com/swaggo/swag/cmd/swag@latest
+	@go install github.com/vektra/mockery/v2@latest
+	@echo "✅ Ferramentas instaladas com sucesso (swag, mockery)"
+
 .PHONY: mock
 mock: 
 	@echo "🔄 Gen mock..."

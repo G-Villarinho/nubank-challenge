@@ -33,11 +33,17 @@ Este projeto faz parte de um processo seletivo para a vaga de Desenvolvedor Back
 1. **Clone o repositório**
 
 ```bash
-git clone https://github.com/seu-user/seu-repo.git
-cd seu-repo
+git clone https://github.com/G-Villarinho/nubank-challenge.git
+cd nubank-challenge
+```
+2. **Instale as dependências de desenvolvimento**
+
+```bash
+make setup
 ```
 
-2. **Configure o arquivo .env.local**
+
+3. **Configure o arquivo .env.local**
 ```bash
 ENV=DEV
 
@@ -53,22 +59,22 @@ POSTGRES_MAX_LIFE_TIME=1800
 POSTGRES_TIMEOUT=3
 ```
 
-3. **Suba o banco com Docker**
+4. **Suba o banco com Docker**
 ```bash
 $ make docker-run
 ```
 
-4. **Rode as migrations**
+5. **Rode as migrations**
 ```bash
 $ make migrations
 ```
 
-5. **Inicie a aplicação**
+6. **Inicie a aplicação**
 ```bash
 $ make run
 ```
 
-6. **Acesse a documentação Swagger (copie e cole no seu navegado)**
+7. **Acesse a documentação Swagger (copie e cole no seu navegado)**
 ```bash
 http://localhost:8080/swagger/index.html
 ```
