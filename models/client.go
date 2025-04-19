@@ -2,7 +2,12 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"time"
+)
+
+var (
+	ErrClientNotFound = errors.New("client not found")
 )
 
 type Client struct {
@@ -15,5 +20,13 @@ type Client struct {
 }
 
 type CreateClientPayload struct {
-	Name string `json:"name" binding:"required"`
+	Name     string                 `json:"name" binding:"required"`
+	Contacts []CreateContactPayload `json:"contacts" binding:"required"`
+}
+
+type ClientResponse struct {
+	ID        string            `json:"id"`
+	Name      string            `json:"name"`
+	CreatedAt time.Time         `json:"created_at"`
+	Contacts  []ContactResponse `json:"contacts"`
 }

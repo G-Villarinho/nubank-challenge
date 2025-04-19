@@ -15,6 +15,7 @@ type ClientRepository interface {
 	CreateClient(ctx context.Context, client *models.Client) error
 	GetClientsWithContact(ctx context.Context) ([]*models.Client, error)
 	GetClientWitContactsByID(ctx context.Context, id string) (*models.Client, error)
+	GetClientByID(ctx context.Context, id string) (*models.Client, error)
 }
 
 type clientRepository struct {
@@ -54,6 +55,10 @@ func (c *clientRepository) GetClientsWithContact(ctx context.Context) ([]*models
 	var clients []*models.Client
 
 	if err := c.db.WithContext(ctx).Preload("Contacts").Find(&clients).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 
@@ -64,6 +69,24 @@ func (c *clientRepository) GetClientWitContactsByID(ctx context.Context, id stri
 	var client models.Client
 
 	if err := c.db.WithContext(ctx).Preload("Contacts").First(&client, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &client, nil
+}
+
+func (c *clientRepository) GetClientByID(ctx context.Context, id string) (*models.Client, error) {
+	var client models.Client
+
+	if err := c.db.WithContext(ctx).First(&client, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 

@@ -14,6 +14,7 @@ import (
 type ContactRepository interface {
 	CreateContact(ctx context.Context, contact *models.Contact) error
 	GetContactsByClientID(ctx context.Context, clientID string) ([]*models.Contact, error)
+	CreateContacts(ctx context.Context, contacts []*models.Contact) error
 }
 
 type contactRepository struct {
@@ -57,4 +58,23 @@ func (c *contactRepository) GetContactsByClientID(ctx context.Context, clientID 
 	}
 
 	return contacts, nil
+}
+
+func (c *contactRepository) CreateContacts(ctx context.Context, contacts []*models.Contact) error {
+	now := time.Now().UTC()
+	for _, contact := range contacts {
+		id, err := uuid.NewRandom()
+		if err != nil {
+			return fmt.Errorf("generate uuid: %w", err)
+		}
+
+		contact.ID = id.String()
+		contact.CreatedAt = now
+	}
+
+	if err := c.db.WithContext(ctx).Create(contacts).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

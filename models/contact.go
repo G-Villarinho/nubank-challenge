@@ -22,3 +22,21 @@ type CreateContactPayload struct {
 	Email    string `json:"email" binding:"required,email"`
 	ClientID string `json:"clientId" binding:"required,uuid"`
 }
+
+type ContactResponse struct {
+	ID        string    `json:"id"`
+	Phone     string    `json:"phone"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+func ToContacts(payloads []CreateContactPayload) []*Contact {
+	contacts := make([]*Contact, len(payloads))
+	for i, p := range payloads {
+		contacts[i] = &Contact{
+			Phone: p.Phone,
+			Email: p.Email,
+		}
+	}
+	return contacts
+}
