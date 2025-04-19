@@ -1,0 +1,240 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Esta API gerencia clientes e contatos.",
+        "title": "Nubank Challenge API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/clients": {
+            "get": {
+                "description": "Retorna uma lista de clientes com os respectivos contatos associados",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clients"
+                ],
+                "summary": "Lista todos os clientes com seus contatos",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ClientResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno ao buscar clientes"
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clients"
+                ],
+                "summary": "Cria um novo cliente com contatos",
+                "parameters": [
+                    {
+                        "description": "Dados do cliente",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateClientPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ClientResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/clients/{clientId}/contacts": {
+            "get": {
+                "description": "Retorna os contatos associados a um cliente pelo ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clients"
+                ],
+                "summary": "Lista contatos de um cliente específico",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID do cliente",
+                        "name": "clientId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ContactResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ID inválido ou ausente"
+                    },
+                    "404": {
+                        "description": "Cliente não encontrado"
+                    },
+                    "500": {
+                        "description": "Erro interno ao buscar contatos"
+                    }
+                }
+            }
+        },
+        "/contacts": {
+            "post": {
+                "description": "Cria um novo contato associado a um cliente existente",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contacts"
+                ],
+                "summary": "Cria um novo contato",
+                "parameters": [
+                    {
+                        "description": "Dados do contato",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateContactPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ContactResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação ou payload inválido"
+                    },
+                    "404": {
+                        "description": "Cliente não encontrado"
+                    },
+                    "500": {
+                        "description": "Erro interno ao criar contato"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.ClientResponse": {
+            "type": "object",
+            "properties": {
+                "contacts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ContactResponse"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ContactResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateClientPayload": {
+            "type": "object",
+            "required": [
+                "contacts",
+                "name"
+            ],
+            "properties": {
+                "contacts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CreateContactPayload"
+                    }
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Gabriel Villarinho"
+                }
+            }
+        },
+        "models.CreateContactPayload": {
+            "type": "object",
+            "required": [
+                "clientId",
+                "email",
+                "phone"
+            ],
+            "properties": {
+                "clientId": {
+                    "type": "string",
+                    "example": "7a395834-0ed5-4954-8e1d-b63cd2fdb97a"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "gabriel@gmail.com"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "+5521999999999"
+                }
+            }
+        }
+    }
+}

@@ -1,3 +1,8 @@
+// @title Nubank Challenge API
+// @version 1.0
+// @description Esta API gerencia clientes e contatos.
+// @host localhost:8080
+// @BasePath /
 package main
 
 import (
@@ -6,9 +11,11 @@ import (
 	"time"
 
 	"github.com/g-villarinho/nubank-challenge/configs"
+	_ "github.com/g-villarinho/nubank-challenge/docs"
 	"github.com/g-villarinho/nubank-challenge/pkgs"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 func main() {
@@ -27,6 +34,10 @@ func main() {
 
 	initDependencies(ctx, di)
 	setupRoutes(e, di)
+
+	if configs.Env.Env == "DEV" {
+		e.GET("/swagger/*", echoSwagger.WrapHandler)
+	}
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

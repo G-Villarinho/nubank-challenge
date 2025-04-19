@@ -33,6 +33,18 @@ func NewContactHandler(di *pkgs.Di) (ContactHandler, error) {
 	}, nil
 }
 
+// CreateContact godoc
+// @Summary Cria um novo contato
+// @Description Cria um novo contato associado a um cliente existente
+// @Tags contacts
+// @Accept json
+// @Produce json
+// @Param payload body models.CreateContactPayload true "Dados do contato"
+// @Success 201 {object} models.ContactResponse
+// @Failure 400 {object} nil "Erro de validação ou payload inválido"
+// @Failure 404 {object} nil "Cliente não encontrado"
+// @Failure 500 {object} nil "Erro interno ao criar contato"
+// @Router /contacts [post]
 func (c *contactHandler) CreateContact(ectx echo.Context) error {
 	logger := slog.With(
 		slog.String("handler", "contact"),

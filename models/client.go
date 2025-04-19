@@ -20,7 +20,7 @@ type Client struct {
 }
 
 type CreateClientPayload struct {
-	Name     string                 `json:"name" binding:"required"`
+	Name     string                 `json:"name" binding:"required" example:"Gabriel Villarinho"`
 	Contacts []CreateContactPayload `json:"contacts" binding:"required"`
 }
 

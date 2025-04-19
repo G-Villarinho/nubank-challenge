@@ -1,0 +1,159 @@
+basePath: /
+definitions:
+  models.ClientResponse:
+    properties:
+      contacts:
+        items:
+          $ref: '#/definitions/models.ContactResponse'
+        type: array
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.ContactResponse:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      phone:
+        type: string
+    type: object
+  models.CreateClientPayload:
+    properties:
+      contacts:
+        items:
+          $ref: '#/definitions/models.CreateContactPayload'
+        type: array
+      name:
+        example: Gabriel Villarinho
+        type: string
+    required:
+    - contacts
+    - name
+    type: object
+  models.CreateContactPayload:
+    properties:
+      clientId:
+        example: 7a395834-0ed5-4954-8e1d-b63cd2fdb97a
+        type: string
+      email:
+        example: gabriel@gmail.com
+        type: string
+      phone:
+        example: "+5521999999999"
+        type: string
+    required:
+    - clientId
+    - email
+    - phone
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Esta API gerencia clientes e contatos.
+  title: Nubank Challenge API
+  version: "1.0"
+paths:
+  /clients:
+    get:
+      description: Retorna uma lista de clientes com os respectivos contatos associados
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ClientResponse'
+            type: array
+        "500":
+          description: Erro interno ao buscar clientes
+      summary: Lista todos os clientes com seus contatos
+      tags:
+      - clients
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Dados do cliente
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateClientPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ClientResponse'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Cria um novo cliente com contatos
+      tags:
+      - clients
+  /clients/{clientId}/contacts:
+    get:
+      description: Retorna os contatos associados a um cliente pelo ID
+      parameters:
+      - description: ID do cliente
+        in: path
+        name: clientId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ContactResponse'
+            type: array
+        "400":
+          description: ID inválido ou ausente
+        "404":
+          description: Cliente não encontrado
+        "500":
+          description: Erro interno ao buscar contatos
+      summary: Lista contatos de um cliente específico
+      tags:
+      - clients
+  /contacts:
+    post:
+      consumes:
+      - application/json
+      description: Cria um novo contato associado a um cliente existente
+      parameters:
+      - description: Dados do contato
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateContactPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ContactResponse'
+        "400":
+          description: Erro de validação ou payload inválido
+        "404":
+          description: Cliente não encontrado
+        "500":
+          description: Erro interno ao criar contato
+      summary: Cria um novo contato
+      tags:
+      - contacts
+swagger: "2.0"

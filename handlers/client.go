@@ -35,6 +35,16 @@ func NewClientHandler(di *pkgs.Di) (ClientHandler, error) {
 	}, nil
 }
 
+// CreateClient godoc
+// @Summary Cria um novo cliente com contatos
+// @Tags clients
+// @Accept json
+// @Produce json
+// @Param payload body models.CreateClientPayload true "Dados do cliente"
+// @Success 201 {object} models.ClientResponse
+// @Failure 400 {object} nil
+// @Failure 500 {object} nil
+// @Router /clients [post]
 func (c *clientHandler) CreateClient(ectx echo.Context) error {
 	logger := slog.With(
 		slog.String("handler", "client"),
@@ -58,6 +68,14 @@ func (c *clientHandler) CreateClient(ectx echo.Context) error {
 	return ectx.JSON(http.StatusCreated, response)
 }
 
+// GetClientsWithContact godoc
+// @Summary Lista todos os clientes com seus contatos
+// @Description Retorna uma lista de clientes com os respectivos contatos associados
+// @Tags clients
+// @Produce json
+// @Success 200 {array} models.ClientResponse
+// @Failure 500 {object} nil "Erro interno ao buscar clientes"
+// @Router /clients [get]
 func (c *clientHandler) GetClientsWithContact(ectx echo.Context) error {
 	logger := slog.With(
 		slog.String("handler", "client"),
@@ -73,6 +91,17 @@ func (c *clientHandler) GetClientsWithContact(ectx echo.Context) error {
 	return ectx.JSON(http.StatusOK, clients)
 }
 
+// GetClientContactsByID godoc
+// @Summary Lista contatos de um cliente específico
+// @Description Retorna os contatos associados a um cliente pelo ID
+// @Tags clients
+// @Produce json
+// @Param clientId path string true "ID do cliente"
+// @Success 200 {array} models.ContactResponse
+// @Failure 400 {object} nil "ID inválido ou ausente"
+// @Failure 404 {object} nil "Cliente não encontrado"
+// @Failure 500 {object} nil "Erro interno ao buscar contatos"
+// @Router /clients/{clientId}/contacts [get]
 func (c *clientHandler) GetClientContactsByID(ectx echo.Context) error {
 	logger := slog.With(
 		slog.String("handler", "client"),

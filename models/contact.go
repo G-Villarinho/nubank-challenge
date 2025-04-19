@@ -18,9 +18,9 @@ type Contact struct {
 }
 
 type CreateContactPayload struct {
-	Phone    string `json:"phone" binding:"required,e164"`
-	Email    string `json:"email" binding:"required,email"`
-	ClientID string `json:"clientId" binding:"required,uuid"`
+	Phone    string `json:"phone" binding:"required,e164" example:"+5521999999999"`
+	Email    string `json:"email" binding:"required,email" example:"gabriel@gmail.com"`
+	ClientID string `json:"clientId" binding:"required,uuid" example:"7a395834-0ed5-4954-8e1d-b63cd2fdb97a"`
 }
 
 type ContactResponse struct {
