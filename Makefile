@@ -20,7 +20,7 @@ docker-down:
 .PHONY: run
 run:
 	@echo "Running application... \n"
-	@go run main.go
+	@go run main.go setup.go
 
 .PHONY: migrations
 migrations:

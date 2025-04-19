@@ -1,0 +1,42 @@
+
+### Insert a client with contacts
+POST http://localhost:8080/clients
+Content-Type: application/json
+
+{
+    "name": "Gabriel Villarinho",
+    "contacts": [
+        {
+            "email": "gabriel@gmail.com",
+            "phone": "123456789"
+        },
+        {
+            "email": "gabriel+1@gmail.com",
+            "phone": "987654321"
+        }
+    ]
+}
+
+### Insert a client without contacts
+POST http://localhost:8080/clients
+Content-Type: application/json
+
+{
+    "name": "Caio Gabriel"
+}
+
+### Get all clients
+GET http://localhost:8080/clients
+
+### Get all contacts of a client
+GET http://localhost:8080/clients/d5e30329-1d13-4104-b715-b1f8b0e54b47/contacts
+
+### Add a contact to a client
+POST http://localhost:8080/contacts
+Content-Type: application/json
+
+{
+    "clientId": "d5e30329-1d13-4104-b715-b1f8b0e54b47",
+    "email": "caio.gabriel@gmal.com",
+    "phone": "123456789"
+}

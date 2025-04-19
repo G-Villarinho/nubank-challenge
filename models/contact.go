@@ -30,6 +30,15 @@ type ContactResponse struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+func (c *Contact) ToContactResponse() *ContactResponse {
+	return &ContactResponse{
+		ID:        c.ID,
+		Phone:     c.Phone,
+		Email:     c.Email,
+		CreatedAt: c.CreatedAt,
+	}
+}
+
 func ToContacts(payloads []CreateContactPayload) []*Contact {
 	contacts := make([]*Contact, len(payloads))
 	for i, p := range payloads {
@@ -39,4 +48,17 @@ func ToContacts(payloads []CreateContactPayload) []*Contact {
 		}
 	}
 	return contacts
+}
+
+func ToContactResponses(contacts []Contact) []*ContactResponse {
+	res := make([]*ContactResponse, len(contacts))
+	for i, c := range contacts {
+		res[i] = &ContactResponse{
+			ID:        c.ID,
+			Phone:     c.Phone,
+			Email:     c.Email,
+			CreatedAt: c.CreatedAt,
+		}
+	}
+	return res
 }

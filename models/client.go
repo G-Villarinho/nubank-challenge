@@ -25,8 +25,17 @@ type CreateClientPayload struct {
 }
 
 type ClientResponse struct {
-	ID        string            `json:"id"`
-	Name      string            `json:"name"`
-	CreatedAt time.Time         `json:"created_at"`
-	Contacts  []ContactResponse `json:"contacts"`
+	ID        string             `json:"id"`
+	Name      string             `json:"name"`
+	CreatedAt time.Time          `json:"created_at"`
+	Contacts  []*ContactResponse `json:"contacts"`
+}
+
+func (c *Client) ToClientResponse() *ClientResponse {
+	return &ClientResponse{
+		ID:        c.ID,
+		Name:      c.Name,
+		CreatedAt: c.CreatedAt,
+		Contacts:  ToContactResponses(c.Contacts),
+	}
 }

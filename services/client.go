@@ -11,8 +11,8 @@ import (
 
 type ClientService interface {
 	CreateClient(ctx context.Context, name string, contacts []*models.Contact) (*models.ClientResponse, error)
-	GetClientsWithContact(ctx context.Context) ([]*models.ClientResponse, error)
-	GetClientContactsByID(ctx context.Context, id string) ([]*models.ContactResponse, error)
+	GetClientsWithContact(ctx context.Context) ([]models.ClientResponse, error)
+	GetClientContactsByID(ctx context.Context, id string) ([]models.ContactResponse, error)
 }
 
 type clientService struct {
@@ -40,64 +40,47 @@ func NewClientService(di *pkgs.Di) (ClientService, error) {
 }
 
 func (c *clientService) CreateClient(ctx context.Context, name string, contacts []*models.Contact) (*models.ClientResponse, error) {
-	client := &models.Client{
-		Name: name,
-	}
+	client := &models.Client{Name: name}
 
 	if err := c.clr.CreateClient(ctx, client); err != nil {
 		return nil, fmt.Errorf("create client: %w", err)
 	}
 
 	if len(contacts) > 0 {
-		for i := range contacts {
-			contacts[i].ClientID = client.ID
+		for _, contact := range contacts {
+			contact.ClientID = client.ID
 		}
 
 		if err := c.ctr.CreateContacts(ctx, contacts); err != nil {
 			return nil, fmt.Errorf("create contacts: %w", err)
 		}
-	}
 
-	clientResponse := &models.ClientResponse{
-		ID:        client.ID,
-		Name:      client.Name,
-		CreatedAt: client.CreatedAt,
-	}
-
-	clientResponse.Contacts = make([]models.ContactResponse, len(contacts))
-	for i, contact := range contacts {
-		clientResponse.Contacts[i] = models.ContactResponse{
-			ID:        contact.ID,
-			Phone:     contact.Phone,
-			Email:     contact.Email,
-			CreatedAt: contact.CreatedAt,
+		client.Contacts = make([]models.Contact, len(contacts))
+		for i, contact := range contacts {
+			client.Contacts[i] = *contact
 		}
 	}
 
-	return clientResponse, nil
+	resp := client.ToClientResponse()
+	return resp, nil
 }
 
-func (c *clientService) GetClientsWithContact(ctx context.Context) ([]*models.ClientResponse, error) {
+func (c *clientService) GetClientsWithContact(ctx context.Context) ([]models.ClientResponse, error) {
 	clients, err := c.clr.GetClientsWithContact(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("get clients with contact: %w", err)
 	}
 
-	clientResponses := make([]*models.ClientResponse, 0, len(clients))
+	clientResponses := make([]models.ClientResponse, 0, len(clients))
 
 	for _, client := range clients {
-		clientResponses = append(clientResponses, &models.ClientResponse{
-			ID:        client.ID,
-			Name:      client.Name,
-			CreatedAt: client.CreatedAt,
-			Contacts:  toContactResponses(client.Contacts),
-		})
+		clientResponses = append(clientResponses, *client.ToClientResponse())
 	}
 
 	return clientResponses, nil
 }
 
-func (c *clientService) GetClientContactsByID(ctx context.Context, id string) ([]*models.ContactResponse, error) {
+func (c *clientService) GetClientContactsByID(ctx context.Context, id string) ([]models.ContactResponse, error) {
 	client, err := c.clr.GetClientByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("get client by id %s: %w", id, err)
@@ -112,27 +95,10 @@ func (c *clientService) GetClientContactsByID(ctx context.Context, id string) ([
 		return nil, fmt.Errorf("get contacts by client id %s: %w", client.ID, err)
 	}
 
-	contactsResponse := make([]*models.ContactResponse, 0, len(contacts))
+	contactsResponse := make([]models.ContactResponse, 0, len(contacts))
 	for _, contact := range contacts {
-		contactsResponse = append(contactsResponse, &models.ContactResponse{
-			ID:        contact.ID,
-			Phone:     contact.Phone,
-			Email:     contact.Email,
-			CreatedAt: contact.CreatedAt,
-		})
+		contactsResponse = append(contactsResponse, *contact.ToContactResponse())
 	}
 
 	return contactsResponse, nil
-}
-
-func toContactResponses(contacts []models.Contact) []models.ContactResponse {
-	contactResponses := make([]models.ContactResponse, len(contacts))
-	for i, contact := range contacts {
-		contactResponses[i] = models.ContactResponse{
-			ID:    contact.ID,
-			Email: contact.Email,
-			Phone: contact.Phone,
-		}
-	}
-	return contactResponses
 }
