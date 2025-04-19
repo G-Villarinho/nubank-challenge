@@ -32,3 +32,8 @@ swag:
 	@echo "Generating Swagger documentation... \n"
 	@swag init --output ./docs
 	@echo "\n Swagger documentation generated successfully! \n"
+
+.PHONY: mock
+mock: 
+	@echo "🔄 Gen mock..."
+	@mockery

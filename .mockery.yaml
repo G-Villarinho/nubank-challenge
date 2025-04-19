@@ -1,0 +1,19 @@
+with-expecter: True
+disable-version-string: True
+filename: "{{ .InterfaceName | snakecase }}_mock.go"
+mockname: "{{ .InterfaceName }}Mock"
+dir: "mocks"
+outpkg: "mocks"
+packages:
+    github.com/g-villarinho/nubank-challenge/handlers:
+            config:
+                all: True
+                recursive: True
+    github.com/g-villarinho/nubank-challenge/services:
+        config:
+            all: True
+            recursive: True
+    github.com/g-villarinho/nubank-challenge/repositories:
+        config:
+            all: True
+            recursive: True
